@@ -25,6 +25,7 @@ void playDice() {
     } else {
         int dmg = 10;
         hp -= dmg;
+	if (hp < 0) hp = 0; // ФИКС
         std::cout << "[ПРОИГРЫШ] Наемник ударил вас кружкой! -10 HP.\n";
     }
 }
