@@ -2,7 +2,8 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
-
+#include<windows.h>
+#include<clocale>
 // Состояние игры (базовые переменные)
 int hp = 100;
 int resources = 50; // Золото
@@ -19,7 +20,21 @@ void printHUD() {
 // [МЕСТО ДЛЯ ФУНКЦИЙ РАЗРАБОТЧИКОВ ИЗ PULL REQUEST'ОВ]
 // -----------------------------------------------------------------
 
+void visitTavern() {
+    if (resources >= 30) {
+        resources -= 30;
+        hp += 40;
+        if (hp > 100) hp = 100; // Защита от превышения лимита
+        std::cout << "\n[ОТДЫХ] Вы поели и отдохнули. HP восстановлено (+40). Золото (-30).\n";
+    } else {
+        std::cout << "\n[ОТКАЗ] У вас нет 30 золотых! Вас выгнали из таверны.\n";
+    }
+}
+
 int main() {
+	SetConsoleCP(65001);
+	SetConsoleOutputCP(65001);
+	setlocale(LC_ALL, "Russian");
     srand(time(NULL));
     int choice = 0;
 
@@ -42,9 +57,8 @@ int main() {
                 std::cout << "\n[!] Модуль риска еще в разработке (Issue #1).\n";
                 break;
             case 2:
-                // [РАЗРАБОТЧИК 2: ПОДКЛЮЧИТ МОДУЛЬ ОТХИЛА (ISSUE #2)]
-                std::cout << "\n[!] Модуль таверны еще в разработке (Issue #2).\n";
-                break;
+    		visitTavern();
+    		break;
             case 3:
                 // [РАЗРАБОТЧИК 3: ПОДКЛЮЧИТ РУЛЕТКУ/КОСТИ (ISSUE #3)]
                 std::cout << "\n[!] Модуль событий еще в разработке (Issue #3).\n";
