@@ -4,6 +4,7 @@
 #include <ctime>
 #include<windows.h>
 #include<clocale>
+
 // Состояние игры (базовые переменные)
 int hp = 100;
 int resources = 50; // Золото
@@ -16,6 +17,47 @@ void printHUD() {
     std::cout << "--------------------------------------------------------------\n";
 }
 
+void exploreLair() {
+    int roll = rand() % 100;
+    if (roll < 50) {
+        int gold = 20 + rand() % 30;
+        resources += gold;
+        score += 100;
+        std::cout << "\n[УДАЧА] Вы победили гоблина! Найдено золота: " << gold << "\n";
+    } else {
+        int dmg = 30 + rand() % 20;
+        hp -= dmg;
+        if (hp < 0) hp = 0;
+        std::cout << "\n[ПРОВАЛ] Дракон обжёг вас! Потеряно здоровья: " << dmg << "\n";
+    }
+}
+
+void visitTavern() {
+    if (resources >= 30) {
+        resources -= 30;
+        hp += 40;
+        if (hp > 100) hp = 100;
+        std::cout << "\n[ОТДЫХ] Вы поели и отдохнули. HP восстановлено (+40). Золото (-30).\n";
+    } else {
+        std::cout << "\n[ОТКАЗ] У вас нет 30 золотых! Вас выгнали из таверны.\n";
+        return;
+    }
+}
+
+void playDice() {
+    int d20 = rand() % 20 + 1;
+    std::cout << "\n[КОСТИ] Вы бросили D20 и выпало: " << d20 << "\n";
+    if (d20 > 10) {
+        resources += 50;
+        score += 50;
+        std::cout << "[ПОБЕДА] Вы обыграли пьяного наемника! +50 золота.\n";
+    } else {
+        int dmg = 10;
+        hp -= dmg;
+        if (hp < 0) hp = 0;
+        std::cout << "[ПРОИГРЫШ] Наемник ударил вас кружкой! -10 HP.\n";
+    }
+}
 
 void useAltar() {
     if (resources >= 20) {
@@ -30,44 +72,14 @@ void useAltar() {
         }
     } else {
         std::cout << "\n[НЕДОСТАТОЧНО ЗОЛОТА] Нужно 20 золота для жертвы.\n";
-	return; //ФИКС
-
-// -----------------------------------------------------------------
-// [МЕСТО ДЛЯ ФУНКЦИЙ РАЗРАБОТЧИКОВ ИЗ PULL REQUEST'ОВ]
-// -----------------------------------------------------------------
-
-void exploreLair() {
-    int roll = rand() % 100;
-    if (roll < 50) {
-        int gold = 20 + rand() % 30;
-        resources += gold;
-        score += 100;
-        std::cout << "\n[УДАЧА] Вы победили гоблина! Найдено золота: " << gold << "\n";
-    } else {
-        int dmg = 30 + rand() % 20;
-        hp -= dmg;
-	if (hp < 0) hp = 0; // ФИКС: запрещаем уходить в минус
-        std::cout << "\n[ПРОВАЛ] Дракон обжёг вас! Потеряно здоровья: " << dmg << "\n";
-
+        return;
     }
 }
 
-void visitTavern() {
-    if (resources >= 30) {
-        resources -= 30;
-        hp += 40;
-        if (hp > 100) hp = 100; // Защита от превышения лимита
-        std::cout << "\n[ОТДЫХ] Вы поели и отдохнули. HP восстановлено (+40). Золото (-30).\n";
-    } else {
-    std::cout << "\n[ОТКАЗ] У вас нет 30 золотых! Вас выгнали из таверны.\n";
-    return; // ФИКС: прерываем ход, чтобы не давать очки
-	}
-}
-
 int main() {
-	SetConsoleCP(65001);
-	SetConsoleOutputCP(65001);
-	setlocale(LC_ALL, "Russian");
+    SetConsoleCP(65001);
+    SetConsoleOutputCP(65001);
+    setlocale(LC_ALL, "Russian");
     srand(time(NULL));
     int choice = 0;
 
@@ -85,19 +97,18 @@ int main() {
         if (!(std::cin >> choice)) break;
 
         switch (choice) {
-                        case 1:
+            case 1:
                 exploreLair();
                 break;
             case 2:
-    		visitTavern();
-    		break;
+                visitTavern();
+                break;
             case 3:
-                // [РАЗРАБОТЧИК 3: ПОДКЛЮЧИТ РУЛЕТКУ/КОСТИ (ISSUE #3)]
-                std::cout << "\n[!] Модуль событий еще в разработке (Issue #3).\n";
+                playDice();
                 break;
             case 4:
-    		useAltar();
-    		break;
+                useAltar();
+                break;
             case 0:
                 hp = 0;
                 break;
@@ -106,7 +117,6 @@ int main() {
                 break;
         }
 
-        // Каждый успешный ход дает очки выживания
         if (hp > 0) {
             turn++;
             score += 10;
