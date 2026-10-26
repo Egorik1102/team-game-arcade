@@ -2,7 +2,8 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
-
+#include<windows.h>
+#include<clocale>
 // Состояние игры (базовые переменные)
 int hp = 100;
 int resources = 50; // Золото
@@ -25,11 +26,42 @@ void playDice() {
     } else {
         int dmg = 10;
         hp -= dmg;
-	if (hp < 0) hp = 0; // ФИКС
+        if (hp < 0) hp = 0; // ФИКС
         std::cout << "[ПРОИГРЫШ] Наемник ударил вас кружкой! -10 HP.\n";
     }
 }
+
+void exploreLair() {
+    int roll = rand() % 100;
+    if (roll < 50) {
+        int gold = 20 + rand() % 30;
+        resources += gold;
+        score += 100;
+        std::cout << "\n[УДАЧА] Вы победили гоблина! Найдено золота: " << gold << "\n";
+    } else {
+        int dmg = 30 + rand() % 20;
+        hp -= dmg;
+        if (hp < 0) hp = 0; // ФИКС: запрещаем уходить в минус
+        std::cout << "\n[ПРОВАЛ] Дракон обжёг вас! Потеряно здоровья: " << dmg << "\n";
+    }
+}
+
+void visitTavern() {
+    if (resources >= 30) {
+        resources -= 30;
+        hp += 40;
+        if (hp > 100) hp = 100; // Защита от превышения лимита
+        std::cout << "\n[ОТДЫХ] Вы поели и отдохнули. HP восстановлено (+40). Золото (-30).\n";
+    } else {
+        std::cout << "\n[ОТКАЗ] У вас нет 30 золотых! Вас выгнали из таверны.\n";
+        return; // ФИКС: прерываем ход, чтобы не давать очки
+    }
+}
+
 int main() {
+	SetConsoleCP(65001);
+	SetConsoleOutputCP(65001);
+	setlocale(LC_ALL, "Russian");
     srand(time(NULL));
     int choice = 0;
 
@@ -47,14 +79,12 @@ int main() {
         if (!(std::cin >> choice)) break;
 
         switch (choice) {
-            case 1:
-                // [РАЗРАБОТЧИК 1: ПОДКЛЮЧИТ ФУНКЦИЮ РИСКА (ISSUE #1)]
-                std::cout << "\n[!] Модуль риска еще в разработке (Issue #1).\n";
+                        case 1:
+                exploreLair();
                 break;
             case 2:
-                // [РАЗРАБОТЧИК 2: ПОДКЛЮЧИТ МОДУЛЬ ОТХИЛА (ISSUE #2)]
-                std::cout << "\n[!] Модуль таверны еще в разработке (Issue #2).\n";
-                break;
+    		visitTavern();
+    		break;
             case 3:
     		playDice();
     		break;
