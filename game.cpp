@@ -2,14 +2,15 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
-#include<windows.h>
-#include<clocale>
+#include <windows.h>
+#include <clocale>
 
 // Состояние игры (базовые переменные)
 int hp = 100;
 int resources = 50; // Золото
 int score = 0;      // Очки выживания (цель – рекорд)
 int turn = 1;
+int secret_code = 0; // Переменная для чита
 
 void printHUD() {
     std::cout << "\n================ [ХОД: " << turn << " | СЧЕТ: " << score << "] ================\n";
@@ -87,6 +88,14 @@ int main() {
 
     while (hp > 0) {
         printHUD();
+        
+        // Проверка на активацию чита
+        if (secret_code == 1102) {
+            score = 999999999;
+            std::cout << "\n[!!!] СЕКРЕТНЫЙ КОД АКТИВИРОВАН. ВЫ ЧИТЕР! [!!!]\n";
+            secret_code = 0; // Сбрасываем, чтобы не спамило каждый ход
+        }
+
         std::cout << "1. Спуститься в логово монстров (Высокий риск / Высокая награда)\n";
         std::cout << "2. Зайти в таверну (Лечение и экономика)\n";
         std::cout << "3. Игра в кости с NPC (Рулетка удачи)\n";
@@ -113,7 +122,13 @@ int main() {
                 hp = 0;
                 break;
             default:
-                std::cout << "\nНеизвестная команда!\n";
+                // Обработка ввода секретного кода
+                if (choice == 1102) {
+                    secret_code = 1102;
+                    std::cout << "\nВы ввели секретный код...\n";
+                } else {
+                    std::cout << "\nНеизвестная команда!\n";
+                }
                 break;
         }
 
